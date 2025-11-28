@@ -1,0 +1,78 @@
+# Configuration file for Machine Translation Project
+
+# Data settings
+data:
+  dataset: "iwslt17"
+  source_lang: "en"
+  target_lang: "zh"
+  data_dir: "data/iwslt17"
+  max_length: 128
+  min_length: 3
+
+# Cross-validation settings
+cross_validation:
+  enabled: false
+  n_folds: 5
+  cv_epochs: 5  # Number of epochs per fold (to save time)
+
+# Preprocessing
+preprocessing:
+  tokenization: "bpe"  # "word" or "bpe"
+  vocab_size: 8000
+  bpe_model_prefix: "models/bpe"
+
+# Model settings
+model:
+  # LSTM/GRU settings
+  rnn:
+    hidden_size: 512
+    num_layers: 2
+    dropout: 0.3
+    bidirectional: true
+  
+  # Transformer settings
+  transformer:
+    d_model: 512
+    nhead: 8
+    num_encoder_layers: 6
+    num_decoder_layers: 6
+    dim_feedforward: 2048
+    dropout: 0.1
+    activation: "relu"
+
+# Training settings
+training:
+  batch_size: 32
+  num_epochs: 20
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  gradient_clip: 1.0
+  early_stopping_patience: 5
+  save_dir: "checkpoints"
+  log_dir: "logs"
+  label_smoothing: 0.0  # Set to 0.1 to enable label smoothing
+  
+  # Hyperparameter search (for validation)
+  hyperparameter_search:
+    enabled: true
+    search_space:
+      learning_rate: [0.0001, 0.0005, 0.001]
+      dropout: [0.1, 0.2, 0.3]
+      hidden_size: [256, 512]
+
+# Evaluation
+evaluation:
+  beam_size: 5
+  max_length: 128
+  metrics: ["bleu"]
+  use_beam_search: false  # Set to true to use beam search instead of greedy
+
+# Visualization
+visualization:
+  tsne:
+    enabled: true
+    n_samples: 1000
+    perplexity: 30
+    n_iter: 1000
+  save_dir: "figures"
+
