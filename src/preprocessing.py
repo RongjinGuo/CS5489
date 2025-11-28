@@ -69,6 +69,9 @@ class WordTokenizer:
             if idx not in [self.word2idx['<pad>'], self.word2idx['<bos>']]:
                 words.append(self.idx2word.get(idx, '<unk>'))
         return ' '.join(words)
+    def get_vocab_size(self):
+        """For compatibility with BPETokenizer"""
+        return len(self.word2idx)
 
 class BPETokenizer:
     """BPE tokenizer using SentencePiece"""
