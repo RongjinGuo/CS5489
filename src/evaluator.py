@@ -126,11 +126,8 @@ class Evaluator:
                     decoded_ids = self.translate(src_text, src_tokenizer, tgt_tokenizer)
                     
                     # Decode
-                    if isinstance(tgt_tokenizer, type(src_tokenizer)) and hasattr(tgt_tokenizer, 'decode'):
-                        pred_text = tgt_tokenizer.decode(decoded_ids)
-                    else:
-                        # Fallback: use tokenizer's decode method
-                        pred_text = tgt_tokenizer.decode(decoded_ids)
+                    # Both WordTokenizer and BPETokenizer have decode method
+                    pred_text = tgt_tokenizer.decode(decoded_ids)
                     
                     predictions.append(pred_text)
                     references.append([tgt_text])  # BLEU expects list of references

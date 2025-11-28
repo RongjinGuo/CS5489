@@ -1,6 +1,3 @@
-"""
-Data exploration and visualization for MT project
-"""
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -9,7 +6,31 @@ from pathlib import Path
 from collections import Counter
 import re
 
-plt.style.use('seaborn-v0_8')
+import matplotlib
+
+# Use modern matplotlib style (seaborn-v0_8 is deprecated)
+try:
+    plt.style.use('seaborn-v0_8')
+except OSError:
+    # Fallback to default style if seaborn-v0_8 is not available
+    plt.style.use('default')
+sns.set_palette("husl")
+
+# ====== 这里新增：全局中文字体设置 ======
+matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams['font.sans-serif'] = [
+    'Noto Sans CJK SC',   # 如果你装了 fonts-noto-cjk
+    'WenQuanYi Zen Hei',  # 如果你装了文泉驿
+    'SimHei'              # 万一系统有黑体
+]
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+# Use modern matplotlib style (seaborn-v0_8 is deprecated)
+try:
+    plt.style.use('seaborn-v0_8')
+except OSError:
+    # Fallback to default style if seaborn-v0_8 is not available
+    plt.style.use('default')
 sns.set_palette("husl")
 
 def load_data(data_dir, split="train"):

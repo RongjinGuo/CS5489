@@ -28,7 +28,7 @@ def load_config(config_path):
     return config
 
 
-def run_cv_on_train(train_dataset, config, model_type, device, n_folds=3):
+def run_cv_on_train(train_dataset, config, model_type, device, src_tokenizer, tgt_tokenizer, n_folds=3):
     """Run 3-fold CV on training set to select best hyperparameters"""
     print(f"\n{'='*60}")
     print(f"Step 1: {n_folds}-Fold Cross-Validation on Training Set")
@@ -49,6 +49,10 @@ def run_cv_on_train(train_dataset, config, model_type, device, n_folds=3):
     
     all_results = []
     
+    # Get vocab sizes once (tokenizers are already built)
+    src_vocab_size = src_tokenizer.get_vocab_size()
+    tgt_vocab_size = tgt_tokenizer.get_vocab_size()
+    
     for hp_idx, hyperparams in enumerate(hyperparams_list):
         print(f"\nHyperparameter set {hp_idx + 1}/{len(hyperparams_list)}: {hyperparams}")
         fold_losses = []
@@ -65,8 +69,9 @@ def run_cv_on_train(train_dataset, config, model_type, device, n_folds=3):
             val_loader = DataLoader(val_subset, batch_size=config['training']['batch_size'],
                                   shuffle=False, collate_fn=collate_fn)
             
-            # Update config with hyperparameters
-            fold_config = config.copy()
+            # Update config with hyperparameters (deep copy to avoid modifying original)
+            import copy
+            fold_config = copy.deepcopy(config)
             for key, value in hyperparams.items():
                 keys = key.split('.')
                 d = fold_config
@@ -74,11 +79,7 @@ def run_cv_on_train(train_dataset, config, model_type, device, n_folds=3):
                     d = d[k]
                 d[keys[-1]] = value
             
-            # Build model
-            src_tokenizer, tgt_tokenizer = build_tokenizers(fold_config, config['data']['data_dir'])
-            src_vocab_size = src_tokenizer.get_vocab_size()
-            tgt_vocab_size = tgt_tokenizer.get_vocab_size()
-            
+            # Build model (vocab sizes are fixed, only hyperparams change)
             model = build_model(model_type, src_vocab_size, tgt_vocab_size, fold_config)
             
             # Train for fewer epochs during CV
@@ -152,7 +153,8 @@ def main():
     
     # Step 1: Cross-validation on train set
     if not args.skip_cv:
-        best_hyperparams = run_cv_on_train(train_dataset, config, args.model, device, args.n_folds)
+        best_hyperparams = run_cv_on_train(train_dataset, config, args.model, device, 
+                                          src_tokenizer, tgt_tokenizer, args.n_folds)
         
         # Update config with best hyperparameters
         for key, value in best_hyperparams.items():

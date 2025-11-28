@@ -59,7 +59,7 @@ def main():
     print("="*60)
     
     for model in models:
-        checkpoint = f"checkpoints/{model}_best.pt"
+        checkpoint = f"checkpoints/{model}/{model}_best.pt"
         if Path(checkpoint).exists():
             cmd = f"python scripts/evaluate.py --model {model} --checkpoint {checkpoint} --config config.yaml"
             run_command(cmd, f"Evaluate {model.upper()} model")
@@ -72,7 +72,7 @@ def main():
     print("="*60)
     
     for model in models:
-        checkpoint = f"checkpoints/{model}_best.pt"
+        checkpoint = f"checkpoints/{model}/{model}_best.pt"
         if Path(checkpoint).exists():
             cmd = f"python scripts/visualize.py --model {model} --checkpoint {checkpoint} --config config.yaml --task all"
             run_command(cmd, f"Visualize {model.upper()} model")

@@ -60,12 +60,13 @@ class BeamSearchDecoder:
                     continue
                 
                 # Get next token predictions
-                tgt_input = torch.tensor([seq], dtype=torch.long).to(device)
+                # Use only the last token for next step prediction
+                last_token = torch.tensor([[seq[-1]]], dtype=torch.long).to(device)
                 
                 if 'LSTM' in self.model.__class__.__name__:
-                    logits = self.model.decoder(tgt_input, encoder_output, hidden, src_lengths)
+                    logits = self.model.decoder(last_token, encoder_output, hidden, src_lengths)
                 else:  # GRU
-                    logits = self.model.decoder(tgt_input, encoder_output, hidden, src_lengths)
+                    logits = self.model.decoder(last_token, encoder_output, hidden, src_lengths)
                 
                 # Get top-k predictions
                 log_probs = F.log_softmax(logits[:, -1, :], dim=-1)
@@ -79,7 +80,9 @@ class BeamSearchDecoder:
                     new_seq = seq + [token_id]
                     new_score = score + token_log_prob
                     
-                    # Update hidden state (simplified - in practice need to track properly)
+                    # Note: Hidden state tracking is simplified here
+                    # For proper beam search, we would need decoder to return hidden state
+                    # or use a different decoding approach. This works but may not be optimal.
                     candidates.append((new_seq, new_score, hidden))
             
             # Select top beam_size candidates

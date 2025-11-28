@@ -66,37 +66,38 @@ python scripts/train.py --model transformer --config config.yaml
 
 ```bash
 # 评估 LSTM
-python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm_best.pt
+python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt --config config.yaml
 
 # 评估 GRU
-python scripts/evaluate.py --model gru --checkpoint checkpoints/gru_best.pt
+python scripts/evaluate.py --model gru --checkpoint checkpoints/gru/gru_best.pt --config config.yaml
 
 # 评估 Transformer
-python scripts/evaluate.py --model transformer --checkpoint checkpoints/transformer_best.pt
+python scripts/evaluate.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --config config.yaml
 ```
 
 #### Step 5: 可视化
 
 ```bash
 # 生成 t-SNE 可视化
-python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer_best.pt --task tsne
+python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task tsne
 
 # 生成聚类可视化
-python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer_best.pt --task cluster
+python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task cluster
 
 # 生成训练曲线
-python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer_best.pt --task curves
+python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task curves
 
 # 生成所有可视化
-python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer_best.pt --task all
+python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task all
 ```
 
 ## 输出文件说明
 
 ### 训练输出
-- `checkpoints/{model}_best.pt` - 最佳模型检查点
-- `checkpoints/{model}_latest.pt` - 最新检查点
-- `checkpoints/history.json` - 训练历史（损失曲线数据）
+- `checkpoints/{model}/{model}_best.pt` - 最佳模型检查点
+- `checkpoints/{model}/{model}_latest.pt` - 最新检查点
+- `checkpoints/{model}/history.json` - 训练历史（损失曲线数据）
+- `checkpoints/{model}/training_log.txt` - 详细训练日志
 
 ### 评估输出
 - `results/{model}_bleu.json` - BLEU 分数
@@ -112,10 +113,13 @@ python scripts/visualize.py --model transformer --checkpoint checkpoints/transfo
 主要配置在 `config.yaml` 中：
 
 - **数据设置**: 最大长度、最小长度
-- **预处理**: 选择 tokenization 方式（word/bpe）、词汇表大小
+- **预处理**: 选择 tokenization 方式（`word` 或 `bpe`）、词汇表大小
+  - `word`: 词级别分词，适合快速实验
+  - `bpe`: 子词分词，更好地处理OOV问题（推荐）
 - **模型设置**: 隐藏层大小、层数、dropout 等
-- **训练设置**: batch size、学习率、epochs 等
-- **评估设置**: beam size、最大长度等
+- **训练设置**: batch size、学习率、epochs、label smoothing 等
+- **评估设置**: beam size、最大长度、是否使用beam search等
+- **交叉验证**: CV折数、每个fold的训练epoch数
 
 ## 常见问题
 
@@ -132,13 +136,23 @@ A:
 - 减小模型大小（hidden_dim, num_layers）
 
 ### Q: 如何修改超参数？
-A: 编辑 `config.yaml` 文件，然后重新训练
+A: 编辑 `config.yaml` 文件，然后重新训练。或者使用 `train_with_cv.py` 进行交叉验证自动选择最佳超参数。
+
+### Q: 如何使用交叉验证？
+A: 
+```bash
+python scripts/train_with_cv.py --model lstm --config config.yaml --n_folds 3
+```
+这会在训练集上进行3折交叉验证，自动选择最佳超参数。
+
+### Q: 如何切换tokenization方式？
+A: 在 `config.yaml` 中修改 `preprocessing.tokenization` 为 `"word"` 或 `"bpe"`，然后重新训练。
 
 ### Q: 如何添加新的模型？
 A: 
 1. 在 `src/models/` 中创建新模型文件
-2. 在 `scripts/train.py` 中添加模型构建逻辑
-3. 在 `scripts/evaluate.py` 中添加模型加载逻辑
+2. 在 `scripts/train.py` 的 `build_model` 函数中添加模型构建逻辑
+3. 在 `scripts/evaluate.py` 的 `load_model` 函数中添加模型加载逻辑
 
 ## 报告撰写
 

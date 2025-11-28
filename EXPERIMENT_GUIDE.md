@@ -58,10 +58,10 @@ python scripts/train.py --model lstm --config config.yaml
 
 ```bash
 # Greedy (默认)
-python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt
+python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt --config config.yaml
 
 # Beam Search (修改 config.yaml: evaluation.use_beam_search = true)
-python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt
+python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt --config config.yaml
 ```
 
 #### 4.2 Label Smoothing
@@ -214,7 +214,7 @@ python scripts/train.py --model lstm
 
 # 5. Extra 实验
 # Beam Search
-python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt
+python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.pt --config config.yaml
 # (修改 config.yaml: use_beam_search = true 再跑一次)
 
 # Label Smoothing
@@ -222,7 +222,7 @@ python scripts/evaluate.py --model lstm --checkpoint checkpoints/lstm/lstm_best.
 python scripts/train.py --model lstm
 
 # 6. 可视化
-python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task all
+python scripts/visualize.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --task all --config config.yaml
 
 # 7. 结果汇总
 python scripts/summarize_results.py
@@ -233,10 +233,12 @@ python scripts/summarize_results.py
 完成所有实验后，你应该有：
 
 1. **训练历史**：`checkpoints/{model}/history.json`
-2. **CV 结果**：`checkpoints/cv_results/cv_summary.json`
-3. **评估结果**：`results/{model}_bleu.json`
-4. **可视化**：`figures/{model}_*.png`
-5. **汇总报告**：`results/summary_report.md`
+2. **训练日志**：`checkpoints/{model}/training_log.txt`
+3. **模型检查点**：`checkpoints/{model}/{model}_best.pt`
+4. **CV 结果**：`checkpoints/cv_results/cv_summary.json`
+5. **评估结果**：`results/{model}_bleu.json`
+6. **可视化**：`figures/{model}_*.png`
+7. **汇总报告**：`results/summary_report.md`
 
 ## 💡 提示
 
@@ -244,6 +246,16 @@ python scripts/summarize_results.py
 - 主实验用完整 epoch 数（如 20 个）
 - 保存所有实验结果，方便写报告时引用
 - 多做几个翻译例子展示，包括好案例和坏案例
+- **重要**：评估时记得指定 `--config` 参数，因为需要根据配置加载正确的tokenizer（word或BPE）
+- Tokenizer会在第一次使用时自动训练/加载，BPE模型会保存在 `models/` 目录下
+
+## 🔧 最近更新
+
+### 代码修复（2024）
+- ✅ 修复了 `evaluate.py` 中tokenizer加载问题，现在支持word和BPE两种方式
+- ✅ 优化了 `train_with_cv.py`，避免重复构建tokenizer
+- ✅ 改进了配置管理，使用深拷贝避免配置污染
+- ✅ 修复了seaborn样式兼容性问题
 
 祝实验顺利！🎉
 

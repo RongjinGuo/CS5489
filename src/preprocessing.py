@@ -150,7 +150,15 @@ class BPETokenizer:
         if self.sp is None:
             raise ValueError("BPE model not loaded.")
         return self.sp.decode(ids)
-
+    
+    def load(self, model_path):
+        """Explicitly load an existing SentencePiece model."""
+        self.model_path = model_path
+        self.sp = spm.SentencePieceProcessor()
+        self.sp.load(model_path)
+        print(f"[BPETokenizer] Loaded model from {model_path}")
+        return self
+        
     def get_vocab_size(self):
         return len(self.sp) if self.sp else 0
 

@@ -6,31 +6,42 @@ This project implements multiple neural machine translation models for English t
 
 ```
 MT/
-├── README.md
-├── requirements.txt
-├── config.yaml
+├── README.md                      # This file (English)
+├── QUICKSTART.md                  # Quick start guide (Chinese)
+├── EXPERIMENT_GUIDE.md            # Complete experiment guide (Chinese)
+├── requirements.txt               # Python dependencies
+├── config.yaml                    # Configuration file
+├── run_all.py                     # Complete pipeline script
 ├── data/
-│   ├── download_data.py
-│   └── prepare_iwslt17.py
+│   ├── download_data.py           # Download IWSLT17 dataset
+│   ├── prepare_iwslt17.py         # Prepare and split dataset
+│   └── iwslt17/                   # Processed dataset
 ├── src/
 │   ├── __init__.py
-│   ├── data_exploration.py      # Data analysis and visualization
-│   ├── preprocessing.py          # Tokenization and feature engineering
+│   ├── data_exploration.py         # Data analysis and visualization
+│   ├── preprocessing.py            # Tokenization (Word/BPE)
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── lstm_seq2seq.py      # LSTM Encoder-Decoder
-│   │   ├── gru_seq2seq.py       # GRU Encoder-Decoder
-│   │   └── transformer.py       # Transformer model
-│   ├── trainer.py                # Training loop
-│   ├── evaluator.py              # BLEU evaluation
-│   └── visualization.py          # TSNE and clustering
+│   │   ├── lstm_seq2seq.py        # LSTM Encoder-Decoder
+│   │   ├── gru_seq2seq.py         # GRU Encoder-Decoder
+│   │   └── transformer.py         # Transformer model
+│   ├── trainer.py                 # Training loop
+│   ├── evaluator.py               # BLEU evaluation
+│   ├── beam_search.py             # Beam search decoding
+│   ├── label_smoothing.py         # Label smoothing loss
+│   ├── cross_validation.py        # Cross-validation utilities
+│   └── visualization.py           # t-SNE and clustering
 ├── scripts/
-│   ├── train.py                  # Main training script
-│   └── evaluate.py               # Evaluation script
-├── notebooks/
-│   └── data_exploration.ipynb    # Jupyter notebook for exploration
+│   ├── train.py                   # Main training script
+│   ├── train_with_cv.py           # Training with cross-validation
+│   ├── evaluate.py                # Evaluation script
+│   ├── visualize.py              # Visualization script
+│   └── summarize_results.py       # Results summarization
+├── checkpoints/                   # Model checkpoints (generated)
+├── results/                       # Evaluation results (generated)
+├── figures/                      # Visualization figures (generated)
 └── report/
-    └── report_template.md        # Report template
+    └── report_template.md         # Report template
 ```
 
 ## Installation
@@ -63,7 +74,7 @@ python scripts/train.py --model transformer --config config.yaml
 
 4. **Evaluate:**
 ```bash
-python scripts/evaluate.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt
+python scripts/evaluate.py --model transformer --checkpoint checkpoints/transformer/transformer_best.pt --config config.yaml
 ```
 
 ### Full Experimental Pipeline (Rubric-based)
@@ -86,9 +97,10 @@ Key features:
 
 ## Features
 
-- Word-level tokenization
-- BPE (Byte Pair Encoding) subword tokenization
-- Hyperparameter tuning
-- TSNE visualization of embeddings
-- BLEU score evaluation
+- **Tokenization**: Word-level and BPE (Byte Pair Encoding) subword tokenization
+- **Models**: LSTM, GRU, and Transformer architectures with attention mechanisms
+- **Training**: Cross-validation for hyperparameter tuning, early stopping, label smoothing
+- **Decoding**: Greedy decoding and beam search
+- **Evaluation**: BLEU score evaluation with translation examples
+- **Visualization**: t-SNE dimensionality reduction, KMeans clustering, training curves
 

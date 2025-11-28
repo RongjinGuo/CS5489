@@ -81,8 +81,9 @@ class CrossValidator:
                 print(f"\n  Hyperparameter set {hp_idx + 1}/{len(hyperparams_list)}")
                 print(f"  {hyperparams}")
                 
-                # Update config with hyperparameters
-                fold_config = self.config.copy()
+                # Update config with hyperparameters (deep copy to avoid modifying original)
+                import copy
+                fold_config = copy.deepcopy(self.config)
                 for key, value in hyperparams.items():
                     # Handle nested keys like 'model.rnn.hidden_size'
                     keys = key.split('.')

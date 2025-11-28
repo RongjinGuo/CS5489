@@ -26,25 +26,52 @@ def load_config(config_path):
     return config
 
 
-def load_tokenizers(config):
-    """Load trained tokenizers"""
-    bpe_prefix = config['preprocessing']['bpe_model_prefix']
+def load_tokenizers(config, data_dir="data/iwslt17"):
+    """Load trained tokenizers (supports both word and BPE)"""
+    tokenization = config['preprocessing']['tokenization']
     
-    src_tokenizer = BPETokenizer()
-    src_tokenizer.load(f"{bpe_prefix}_en.model")
-    
-    tgt_tokenizer = BPETokenizer()
-    tgt_tokenizer.load(f"{bpe_prefix}_zh.model")
+    if tokenization == "bpe":
+        bpe_prefix = config['preprocessing']['bpe_model_prefix']
+        
+        src_tokenizer = BPETokenizer()
+        src_tokenizer.load(f"{bpe_prefix}_en.model")
+        
+        tgt_tokenizer = BPETokenizer()
+        tgt_tokenizer.load(f"{bpe_prefix}_zh.model")
+    elif tokenization == "word":
+        from src.preprocessing import WordTokenizer
+        from pathlib import Path
+        
+        # For word tokenizers, we need to rebuild from training data
+        # Load training sentences to rebuild vocab
+        data_dir = Path(data_dir)
+        train_dir = data_dir / "train"
+        
+        with open(train_dir / "train.en", "r", encoding="utf-8") as f:
+            en_sentences = [line.strip() for line in f]
+        
+        with open(train_dir / "train.zh", "r", encoding="utf-8") as f:
+            zh_sentences = [line.strip() for line in f]
+        
+        vocab_size = config['preprocessing']['vocab_size']
+        
+        src_tokenizer = WordTokenizer(vocab_size=vocab_size, min_freq=2)
+        src_tokenizer.build_vocab(en_sentences)
+        
+        tgt_tokenizer = WordTokenizer(vocab_size=vocab_size, min_freq=2)
+        tgt_tokenizer.build_vocab(zh_sentences)
+    else:
+        raise ValueError(f"Unknown tokenization: {tokenization}. Use 'word' or 'bpe'")
     
     return src_tokenizer, tgt_tokenizer
 
 
-def load_model(model_type, checkpoint_path, config, device):
+def load_model(model_type, checkpoint_path, config, device, data_dir="data/iwslt17"):
     """Load trained model"""
     checkpoint = torch.load(checkpoint_path, map_location=device)
     
     # Get vocab sizes from tokenizers
-    src_tokenizer, tgt_tokenizer = load_tokenizers(config)
+    src_tokenizer, tgt_tokenizer = load_tokenizers(config, data_dir)
     src_vocab_size = src_tokenizer.get_vocab_size()
     tgt_vocab_size = tgt_tokenizer.get_vocab_size()
     
@@ -113,10 +140,10 @@ def main():
     print(f"Using device: {device}")
     
     # Load tokenizers
-    src_tokenizer, tgt_tokenizer = load_tokenizers(config)
+    src_tokenizer, tgt_tokenizer = load_tokenizers(config, args.data_dir)
     
     # Load model
-    model = load_model(args.model, args.checkpoint, config, device)
+    model = load_model(args.model, args.checkpoint, config, device, args.data_dir)
     print(f"Loaded {args.model} model from {args.checkpoint}")
     
     # Build test dataset

@@ -17,7 +17,7 @@ cross_validation:
 
 # Preprocessing
 preprocessing:
-  tokenization: "word"  # "word" or "bpe"
+  tokenization: "bpe"  # "word" or "bpe"
   vocab_size: 8000
   bpe_model_prefix: "models/bpe"
 

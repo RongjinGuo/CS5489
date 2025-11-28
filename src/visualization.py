@@ -10,7 +10,12 @@ from sklearn.cluster import KMeans
 from pathlib import Path
 from tqdm import tqdm
 
-plt.style.use('seaborn-v0_8')
+# Use modern matplotlib style (seaborn-v0_8 is deprecated)
+try:
+    plt.style.use('seaborn-v0_8')
+except OSError:
+    # Fallback to default style if seaborn-v0_8 is not available
+    plt.style.use('default')
 sns.set_palette("husl")
 
 
@@ -70,7 +75,7 @@ def visualize_tsne(embeddings, labels=None, save_path="figures/tsne_visualizatio
     """Visualize embeddings using t-SNE"""
     print(f"Running t-SNE on {len(embeddings)} samples...")
     
-    tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter, random_state=42)
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
     
     plt.figure(figsize=(12, 8))
